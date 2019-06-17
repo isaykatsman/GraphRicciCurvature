@@ -8,8 +8,6 @@ setup(
         author='Chien-Chun Ni',
         setup_requires=[
                 'setuptools>=18.0',
-                'cython',
-                'pytest-runner',
         ],
         install_requires=[
                 'cvxpy',

@@ -16,7 +16,7 @@ setup(
                 'networkx',
                 'numpy',
         ],
-        extras_requires={
+        extras_require={
                 'faster_apsp': ['networkit'],
         },
         packages=['GraphRicciCurvature'],

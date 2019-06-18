@@ -1,10 +1,15 @@
+import collections
 import sys
 
 from GraphRicciCurvature.FormanRicci import formanCurvature
 from GraphRicciCurvature.OllivierRicci import ricciCurvature
+from joblib import Parallel, delayed
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+import multiprocessing
 import networkx as nx
+from tqdm import tqdm
 
 
 def get_edge_curvatures(graph):
@@ -53,9 +58,117 @@ def tree():
     plot_curvatures(f_curvatures, 'tree_forman')
 
 
+def plot_sphere(X, name):
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter(X[:, 0], X[:, 1], X[:, 2])
+    plt.savefig('{}.png'.format(name))
+    plt.close()
+
+
+def plot_degree_distribution(graph, name):
+    degrees = sorted([d for n, d in graph.degree()], reverse=True)
+    counts = collections.Counter(degrees)
+    deg, cnt = zip(*counts.items())
+    plt.bar(deg, cnt)
+    plt.savefig('{}_degrees.png'.format(name))
+    plt.close()
+
+
+def sphere():
+    n_samples = 2000
+    n = 3
+    edges_percent = 0.2
+
+    X = np.ndarray(shape=(n_samples, n))
+    for i in range(n_samples):
+        x = np.random.multivariate_normal(np.zeros(n), np.eye(n))
+        X[i] = x / np.linalg.norm(x)
+    plot_sphere(X, 'sphere')
+
+    inner_prods = X @ X.T
+    dists = np.arccos(np.clip(inner_prods, -1, 1))
+    print('Finished computing distances')
+
+    dists_vec = dists[np.triu_indices(n_samples, 1)]
+    n_edges = int((edges_percent * 0.5 * n_samples * (n_samples - 1)) / 100)
+    neigh_threshold = np.partition(dists_vec, n_edges)[n_edges]
+    print('Number of edges: {}, neigh threshold: {}'.format(
+            n_edges, neigh_threshold))
+
+    graph = nx.Graph()
+    graph.add_edges_from(np.argwhere(dists < neigh_threshold))
+    graph.remove_edges_from(graph.selfloop_edges())
+
+    graph = ricciCurvature(graph, alpha=0.5, method='OTD')
+    o_curvatures, _ = get_edge_curvatures(graph)
+    plot_curvatures(o_curvatures, 'sphere_ollivier')
+
+
+def regular_sphere():
+    # Algorithm from https://www.cmu.edu/biolphys/deserno/pdf/sphere_equi.pdf
+    n_samples = 1000
+    a = 4 * np.pi / n_samples
+    d = np.sqrt(a)
+    m_nu = int(np.pi / d)
+    d_nu = np.pi / m_nu
+    d_phi = a / d_nu
+
+    X = []
+    for m in range(m_nu):
+        nu = np.pi * (m + 0.5) / m_nu
+        m_phi = int(2 * np.pi * np.sin(nu) / d_phi)
+        for n in range(m_phi):
+            phi = 2 * np.pi * n / m_phi
+            x = np.array([
+                    np.sin(nu) * np.cos(phi),
+                    np.sin(nu) * np.sin(phi),
+                    np.cos(nu)
+            ])
+            X.append(x)
+    n_samples = len(X)
+    print('Number of points: ', n_samples)
+
+    # plot it to make sure it looks 'regular'
+    X = np.array(X)
+    plot_sphere(X, 'regular_sphere')
+
+    # compute distances
+    inner_prods = X @ X.T
+    dists = np.arccos(np.clip(inner_prods, -1, 1))
+    print('Finished computing distances')
+
+    # search for the smallest distance which gives a single connected component
+    low = 0.1
+    high = 1.0
+    while high - low > 1e-5:
+        mid = (low + high) / 2
+        graph = nx.Graph()
+        graph.add_edges_from(np.argwhere(dists < mid))
+        graph.remove_edges_from(graph.selfloop_edges())
+
+        if nx.number_connected_components(graph) > 1:
+            low = mid
+        else:
+            high = mid
+    assert nx.number_connected_components(graph) == 1
+
+    # degree distribution; should be small
+    plot_degree_distribution(graph, 'regular_sphere')
+
+    # curvature
+    graph = ricciCurvature(graph, alpha=0.25, method='OTD')
+    graph = formanCurvature(graph)
+    o_curvatures, f_curvatures = get_edge_curvatures(graph)
+    plot_curvatures(o_curvatures, 'regular_sphere_ollivier')
+    plot_curvatures(f_curvatures, 'regular_sphere_forman')
+
+
 def main():
-    full_graph()
-    tree()
+    # full_graph()
+    # tree()
+    # sphere()
+    regular_sphere()
 
 
 if __name__ == '__main__':

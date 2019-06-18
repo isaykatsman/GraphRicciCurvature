@@ -157,18 +157,27 @@ def regular_sphere():
     plot_degree_distribution(graph, 'regular_sphere')
 
     # curvature
-    graph = ricciCurvature(graph, alpha=0.25, method='OTD')
+    graph = ricciCurvature(graph, alpha=0.5, method='OTD')
     graph = formanCurvature(graph)
     o_curvatures, f_curvatures = get_edge_curvatures(graph)
     plot_curvatures(o_curvatures, 'regular_sphere_ollivier')
     plot_curvatures(f_curvatures, 'regular_sphere_forman')
 
 
+def cycle():
+    g = nx.cycle_graph(10)
+    g = ricciCurvature(g, alpha=0.5, method='OTD')
+    g = formanCurvature(g)
+    o_curvatures, f_curvatures = get_edge_curvatures(g)
+    print(o_curvatures, f_curvatures)
+
+
 def main():
     # full_graph()
     # tree()
     # sphere()
-    regular_sphere()
+    # regular_sphere()
+    cycle()
 
 
 if __name__ == '__main__':

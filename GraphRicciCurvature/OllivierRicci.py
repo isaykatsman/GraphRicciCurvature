@@ -165,7 +165,7 @@ def _wrapRicci(stuff):
         return ricciCurvature_singleEdge(*stuff)
 
 
-def ricciCurvature(G, alpha=0.5, weight=None, proc=cpu_count(), edge_list=None, method="OTD", verbose=False):
+def ricciCurvature(G, alpha=0.5, weight=None, compute_nc=True, proc=cpu_count(), edge_list=None, method="OTD", verbose=False):
     """
      Compute ricci curvature for all nodes and edges in G.
          Node ricci curvature is defined as the average of all it's adjacency edge.
@@ -174,6 +174,7 @@ def ricciCurvature(G, alpha=0.5, weight=None, proc=cpu_count(), edge_list=None, 
                      It means the share of mass to leave on the original node.
                      eg. x -> y, alpha = 0.4 means 0.4 for x, 0.6 to evenly spread to x's nbr.
      :param weight: The edge weight used to compute Ricci curvature.
+     :param compute_nc: True if the average node curvatures should be computed.
      :param proc: Number of processing used for parallel computing
      :param edge_list: Target edges to compute curvature
      :param method: Transportation method, OTD for Optimal transportation Distance,
@@ -220,17 +221,18 @@ def ricciCurvature(G, alpha=0.5, weight=None, proc=cpu_count(), edge_list=None, 
             G[source][target]['ricciCurvature'] = rc[k]
 
     # compute node Ricci curvature
-    for n in G.nodes():
-        rcsum = 0  # sum of the neighbor Ricci curvature
-        if G.degree(n) != 0:
-            for nbr in G.neighbors(n):
-                if 'ricciCurvature' in G[n][nbr]:
-                    rcsum += G[n][nbr]['ricciCurvature']
+    if compute_nc:
+        for n in G.nodes():
+            rcsum = 0  # sum of the neighbor Ricci curvature
+            if G.degree(n) != 0:
+                for nbr in G.neighbors(n):
+                    if 'ricciCurvature' in G[n][nbr]:
+                        rcsum += G[n][nbr]['ricciCurvature']
 
-            # assign the node Ricci curvature to be the average of node's adjacency edges
-            G.node[n]['ricciCurvature'] = rcsum / G.degree(n)
-            if verbose:
-                print("node %d, Ricci Curvature = %f" % (n, G.node[n]['ricciCurvature']))
+                # assign the node Ricci curvature to be the average of node's adjacency edges
+                G.node[n]['ricciCurvature'] = rcsum / G.degree(n)
+                if verbose:
+                    print("node %d, Ricci Curvature = %f" % (n, G.node[n]['ricciCurvature']))
 
     print(time.time() - t0, " sec for Ricci curvature computation.")
     return G

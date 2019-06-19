@@ -193,13 +193,31 @@ def balanced_tree():
         plot_curvatures(np.array(curvatures), '{}_balanced'.format(limit))
 
 
+def erdos_renyi():
+    n = 1000
+    p = 0.01
+
+    g = nx.Graph()
+    for i in range(n):
+        for j in range(i + 1, n):
+            if np.random.rand() < p:
+                g.add_edge(i, j)
+    print('Number of edges: ', g.number_of_edges())
+    print('Number of connected components: ', nx.number_connected_components(g))
+
+    g = ricciCurvature(g, alpha=0.5, method='OTD')
+    curvs, _ = get_edge_curvatures(g)
+    plot_curvatures(curvs, 'gnp')
+
+
 def main():
     # full_graph()
-    tree()
+    # tree()
     # sphere()
     # regular_sphere()
     # cycle()
     # balanced_tree()
+    erdos_renyi()
 
 
 if __name__ == '__main__':

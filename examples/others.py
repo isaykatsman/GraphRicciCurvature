@@ -206,8 +206,10 @@ def erdos_renyi():
     print('Number of connected components: ', nx.number_connected_components(g))
 
     g = ricciCurvature(g, alpha=0.5, method='OTD')
-    curvs, _ = get_edge_curvatures(g)
-    plot_curvatures(curvs, 'gnp')
+    g = formanCurvature(g)
+    o_curvs, f_curvs = get_edge_curvatures(g)
+    plot_curvatures(o_curvs, 'o_gnp')
+    plot_curvatures(f_curvs, 'f_gnp')
 
 
 def main():

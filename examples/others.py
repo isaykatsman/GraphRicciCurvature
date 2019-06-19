@@ -3,11 +3,9 @@ import sys
 
 from GraphRicciCurvature.FormanRicci import formanCurvature
 from GraphRicciCurvature.OllivierRicci import ricciCurvature
-from joblib import Parallel, delayed
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-import multiprocessing
 import networkx as nx
 from tqdm import tqdm
 
@@ -51,11 +49,16 @@ def tree():
         graph.add_edge(u, next_id)
         next_id += 1
 
-    graph = ricciCurvature(graph, alpha=0.5, method='ATD')
-    graph = formanCurvature(graph)
-    o_curvatures, f_curvatures = get_edge_curvatures(graph)
+    graph = ricciCurvature(graph, alpha=0.5, method='OTD')
+    o_curvatures, _ = get_edge_curvatures(graph)
     plot_curvatures(o_curvatures, 'tree_ollivier')
-    plot_curvatures(f_curvatures, 'tree_forman')
+
+    # skip the last layer
+    curvatures = []
+    for _, v, attrs in graph.edges(data=True):
+        if graph.degree[v] > 1:
+            curvatures.append(attrs['ricciCurvature'])
+    plot_curvatures(curvatures, 'tree_no_leaves_ollivier')
 
 
 def plot_sphere(X, name):
@@ -172,12 +175,31 @@ def cycle():
     print(o_curvatures, f_curvatures)
 
 
+def balanced_tree():
+    branching = 3
+    depth = 5
+    g = nx.balanced_tree(branching, depth)
+    print('Number of edges: ', g.number_of_edges())
+
+    g = ricciCurvature(g, alpha=0.5, method='OTD')
+    o_curvatures, f_curvatures = get_edge_curvatures(g)
+    plot_curvatures(o_curvatures, 'balanced_tree_ollivier')
+
+    # this shows that the positively curved edges are on the last layer
+    for limit in range(1, depth + 1):
+        curvatures = []
+        for u, v in nx.bfs_edges(g, 0, depth_limit=limit):
+            curvatures.append(g[u][v]['ricciCurvature'])
+        plot_curvatures(np.array(curvatures), '{}_balanced'.format(limit))
+
+
 def main():
     # full_graph()
-    # tree()
+    tree()
     # sphere()
     # regular_sphere()
-    cycle()
+    # cycle()
+    # balanced_tree()
 
 
 if __name__ == '__main__':

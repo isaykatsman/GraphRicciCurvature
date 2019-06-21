@@ -31,7 +31,7 @@ def plot_curvatures(curvatures, name):
 
 
 def full_graph():
-    graph = nx.complete_graph(100)
+    graph = nx.complete_graph(10)
     graph = ricciCurvature(graph, alpha=0.5, method='ATD')
     graph = formanCurvature(graph)
 
@@ -50,8 +50,10 @@ def tree():
         next_id += 1
 
     graph = ricciCurvature(graph, alpha=0.5, method='OTD')
-    o_curvatures, _ = get_edge_curvatures(graph)
+    graph = formanCurvature(graph)
+    o_curvatures, f_curvatures = get_edge_curvatures(graph)
     plot_curvatures(o_curvatures, 'tree_ollivier')
+    plot_curvatures(f_curvatures, 'tree_forman')
 
     # skip the last layer
     curvatures = []
@@ -223,8 +225,10 @@ def balanced_tree():
     print('Number of edges: ', g.number_of_edges())
 
     g = ricciCurvature(g, alpha=0.5, method='OTD')
+    g = formanCurvature(g)
     o_curvatures, f_curvatures = get_edge_curvatures(g)
     plot_curvatures(o_curvatures, 'balanced_tree_ollivier')
+    plot_curvatures(f_curvatures, 'balanced_tree_forman')
 
     # this shows that the positively curved edges are on the last layer
     for limit in range(1, depth + 1):
@@ -271,6 +275,10 @@ def grid():
 
 
 def small_sphere():
+    # This yields positive curvatures, as expected, so the conclusion is that
+    # the other ones working with the sphere yield a lot of 0 curvatures because
+    # of the dense sampling which makes the neighbourhood of each node to look
+    # flat.
     g = nx.Graph()
     g.add_edges_from([(0, 1), (0, 2), (0, 3), (0, 4), (1, 2), (1, 3), (1, 5),
                       (2, 4), (2, 5), (3, 4), (3, 5), (4, 5)])

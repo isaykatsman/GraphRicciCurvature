@@ -107,7 +107,7 @@ def ricciCurvature_singleEdge(G, source, target, alpha, length, verbose):
     if verbose:
         print("#source_nbr: %d, #target_nbr: %d, Ricci curvature = %f" % (len(source_nbr), len(target_nbr), result))
 
-    return {(source, target): result}
+    return {(source, target): result / (1 - alpha)}
 
 
 def ricciCurvature_singleEdge_ATD(G, source, target, alpha, length, verbose):

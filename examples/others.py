@@ -43,11 +43,11 @@ def full_graph():
 def tree():
     graph = nx.Graph()
     graph.add_edge(0, 1)
-    next_id = 2
-    for _ in range(1234):
-        u = np.random.randint(0, next_id)
-        graph.add_edge(u, next_id)
-        next_id += 1
+    for i in range(2, 3800):
+        j = i - np.random.geometric(0.01)
+        while j < 0:
+            j = j + i
+        graph.add_edge(i, j)
 
     graph = ricciCurvature(graph, alpha=0.5, method='OTD')
     graph = formanCurvature(graph)
@@ -290,7 +290,7 @@ def small_sphere():
 
 def main():
     # full_graph()
-    # tree()
+    tree()
     # sphere()
     # regular_sphere()
     # cycle()
@@ -299,7 +299,7 @@ def main():
     # hypercube()
     # grid()
     # small_sphere()
-    regular_sphere(toy=True) # should be the same as `small_sphere()`
+    # regular_sphere(toy=True) # should be the same as `small_sphere()`
 
 
 if __name__ == '__main__':

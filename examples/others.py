@@ -105,9 +105,11 @@ def sphere():
     graph.add_edges_from(np.argwhere(dists < neigh_threshold))
     graph.remove_edges_from(graph.selfloop_edges())
 
-    graph = ricciCurvature(graph, alpha=0.5, method='OTD')
-    o_curvatures, _ = get_edge_curvatures(graph)
+    graph = ricciCurvature(graph, alpha=0.99, method='OTD')
+    graph = formanCurvature(graph)
+    o_curvatures, f_curvatures = get_edge_curvatures(graph)
     plot_curvatures(o_curvatures, 'sphere_ollivier')
+    plot_curvatures(f_curvatures, 'sphere_forman')
 
 
 def search_smallest_dist_for_connected_graph(dists):
@@ -291,8 +293,8 @@ def small_sphere():
 
 def main():
     # full_graph()
-    tree()
-    # sphere()
+    # tree()
+    sphere()
     # regular_sphere()
     # cycle()
     # balanced_tree()

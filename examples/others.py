@@ -17,7 +17,7 @@ def get_edge_curvatures(graph):
         if 'ricciCurvature' in attrs:
             ollivier_curvatures.append(attrs['ricciCurvature'])
         if 'formanCurvature' in attrs:
-            forman_curvatures.append(attrs['ricciCurvature'])
+            forman_curvatures.append(attrs['formanCurvature'])
 
     return np.array(ollivier_curvatures), np.array(forman_curvatures)
 
@@ -43,13 +43,13 @@ def full_graph():
 def tree():
     graph = nx.Graph()
     graph.add_edge(0, 1)
-    for i in range(2, 3800):
+    for i in range(2, 2000):
         j = i - np.random.geometric(0.01)
         while j < 0:
             j = j + i
         graph.add_edge(i, j)
 
-    graph = ricciCurvature(graph, alpha=0.5, method='OTD')
+    graph = ricciCurvature(graph, alpha=0.99, method='OTD')
     graph = formanCurvature(graph)
     o_curvatures, f_curvatures = get_edge_curvatures(graph)
     plot_curvatures(o_curvatures, 'tree_ollivier')
@@ -200,7 +200,7 @@ def regular_sphere(toy=False):
     plot_degree_distribution(graph, 'regular_sphere')
 
     # curvature
-    graph = ricciCurvature(graph, alpha=0.5, method='OTD')
+    graph = ricciCurvature(graph, alpha=0.99, method='OTD')
     graph = formanCurvature(graph)
     o_curvatures, f_curvatures = get_edge_curvatures(graph)
     if toy:
@@ -224,7 +224,7 @@ def balanced_tree():
     g = nx.balanced_tree(branching, depth)
     print('Number of edges: ', g.number_of_edges())
 
-    g = ricciCurvature(g, alpha=0.5, method='OTD')
+    g = ricciCurvature(g, alpha=0.99, method='OTD')
     g = formanCurvature(g)
     o_curvatures, f_curvatures = get_edge_curvatures(g)
     plot_curvatures(o_curvatures, 'balanced_tree_ollivier')
@@ -267,11 +267,12 @@ def hypercube():
 
 def grid():
     g = nx.grid_graph([5, 5, 5], periodic=True)
-    g = ricciCurvature(g, alpha=0.5, method='OTD')
+    g = ricciCurvature(g, alpha=0.99, method='OTD')
     g = formanCurvature(g)
     o_curvs, f_curvs = get_edge_curvatures(g)
     plot_curvatures(o_curvs, 'o_grid')
     plot_curvatures(f_curvs, 'f_grid')
+    print(o_curvs, f_curvs)
 
 
 def small_sphere():

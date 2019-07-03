@@ -48,6 +48,7 @@ def tree():
         while j < 0:
             j = j + i
         graph.add_edge(i, j)
+    nx.nx_pydot.write_dot(graph, 'output/random_tree.dot')
 
     graph = ricciCurvature(graph, alpha=0.99, method='OTD')
     graph = formanCurvature(graph)
@@ -293,8 +294,8 @@ def small_sphere():
 
 def main():
     # full_graph()
-    # tree()
-    sphere()
+    tree()
+    # sphere()
     # regular_sphere()
     # cycle()
     # balanced_tree()

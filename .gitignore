@@ -1,6 +1,7 @@
 # installation
 build/
 dist/
+output/
 *.egg-info/
 
 # for pycharm setting

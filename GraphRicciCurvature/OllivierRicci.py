@@ -230,9 +230,9 @@ def ricciCurvature(G, alpha=0.5, weight=None, compute_nc=True, proc=cpu_count(),
                         rcsum += G[n][nbr]['ricciCurvature']
 
                 # assign the node Ricci curvature to be the average of node's adjacency edges
-                G.node[n]['ricciCurvature'] = rcsum / G.degree(n)
+                G.nodes[n]['ricciCurvature'] = rcsum / G.degree(n)
                 if verbose:
-                    print("node %d, Ricci Curvature = %f" % (n, G.node[n]['ricciCurvature']))
+                    print("node %d, Ricci Curvature = %f" % (n, G.nodes[n]['ricciCurvature']))
 
     print(time.time() - t0, " sec for Ricci curvature computation.")
     return G
